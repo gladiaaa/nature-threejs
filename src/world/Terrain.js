@@ -1,12 +1,13 @@
 import * as THREE from 'https://esm.sh/three@0.132.2';
 import { fbm2 } from '../utils/Noise.js';
+import { createGroundMaterial } from './GroundMaterial.js';
 
 const DEFAULTS = {
-    size: 400,          // largeur et profondeur en unités world
-    segments: 200,      // subdivisions par côté → 200*200*2 = 80000 triangles
-    heightScale: 14,    // amplitude max du relief
-    noiseScale: 0.015,  // fréquence du bruit (plus petit = collines plus larges)
-    falloffPower: 2.5,  // agressivité du falloff sur les bords (plus = plus abrupt)
+    size: 400,
+    segments: 200,
+    heightScale: 14,
+    noiseScale: 0.015,
+    falloffPower: 2.5,
 };
 
 export class Terrain {
@@ -28,7 +29,6 @@ export class Terrain {
             const x = positions.getX(i);
             const z = positions.getZ(i);
 
-            // Hauteur brute par FBM
             const h = fbm2(x * noiseScale, z * noiseScale, {
                 octaves: 5,
                 lacunarity: 2.1,
@@ -40,23 +40,20 @@ export class Terrain {
             const dist = Math.min(1, Math.sqrt(nx * nx + nz * nz));
             const falloff = Math.pow(1 - dist, falloffPower);
 
-            const height = h * heightScale * falloff;
-            positions.setY(i, height);
+            positions.setY(i, h * heightScale * falloff);
         }
 
         positions.needsUpdate = true;
         geometry.computeVertexNormals();
 
-        const material = new THREE.MeshStandardMaterial({
-            color: 0x3a5a40,
-            wireframe: true,
-            flatShading: false,
-        });
+        // aoMap a besoin d'un 2e set d'UV
+        geometry.setAttribute('uv2', geometry.attributes.uv);
+
+        const material = createGroundMaterial(16);
 
         this.mesh = new THREE.Mesh(geometry, material);
         this.mesh.receiveShadow = true;
         this.mesh.name = 'Terrain';
-        this._geometry = geometry;
     }
 
     getHeightAt(x, z) {
