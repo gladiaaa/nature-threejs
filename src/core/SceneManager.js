@@ -25,8 +25,6 @@ export class SceneManager {
 
     _initScene() {
         this.scene = new THREE.Scene();
-        // Fond temporaire — sera remplacé par la skybox au commit 5
-        this.scene.background = new THREE.Color(0x0a0e27);
     }
 
     _initCamera() {
@@ -44,7 +42,7 @@ export class SceneManager {
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.08;
-        this.controls.maxPolarAngle = Math.PI * 0.495; // évite de passer sous le sol
+        this.controls.maxPolarAngle = Math.PI * 0.495;
     }
 
     _bindEvents() {
@@ -56,7 +54,6 @@ export class SceneManager {
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
-
 
     add(module) {
         if (module.mesh) this.scene.add(module.mesh);
