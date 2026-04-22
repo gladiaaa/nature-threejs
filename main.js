@@ -2,6 +2,7 @@ import { SceneManager } from './src/core/SceneManager.js';
 import { Terrain } from './src/world/Terrain.js';
 import { Skybox } from './src/world/Skybox.js';
 import { Grass } from './src/vegetation/Grass.js';
+import { Bushes } from './src/vegetation/Bushes.js';
 import { Lighting } from './src/world/Lighting.js';
 import { addNightFog } from './src/world/Fog.js';
 
@@ -15,6 +16,9 @@ sceneManager.add(skybox);
 
 const grass = new Grass(terrain);
 sceneManager.add(grass);
+
+const bushes = new Bushes(terrain);
+sceneManager.add(bushes);
 
 const lighting = new Lighting(terrain.getSize());
 sceneManager.add(lighting);
