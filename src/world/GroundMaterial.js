@@ -21,9 +21,11 @@ export function createGroundMaterial(repeat = 16) {
     return new THREE.MeshStandardMaterial({
         map: color,
         normalMap: normal,
-        normalScale: new THREE.Vector2(1.2, 1.2),
+        normalScale: new THREE.Vector2(0.8, 0.8),
         roughnessMap: roughness,
+        roughness: 1.0,
+        metalness: 0,
         aoMap: ao,
-        aoMapIntensity: 1.0,
+        aoMapIntensity: 1.2,
     });
 }

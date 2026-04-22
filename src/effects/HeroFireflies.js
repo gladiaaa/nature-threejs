@@ -1,7 +1,7 @@
 import * as THREE from 'https://esm.sh/three@0.132.2';
 
 const DEFAULTS = {
-    heroCount: 6,
+    heroCount: 15,
     color: 0xfff08a,
     intensity: 2.5,
     distance: 18,

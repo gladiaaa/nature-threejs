@@ -4,11 +4,12 @@ import { tryLoadGLTF } from '../loaders/AssetManager.js';
 import { generateImpostor } from '../effects/Impostor.js';
 
 const DEFAULTS = {
-    count: 200,
+    count: 400,
     scaleMin: 0.8,
     scaleMax: 1.5,
     highDist: 40,
     midDist: 100,
+    groundBias: 0.8, 
 };
 
 const TEX_PATH = './assets/textures/trees';
@@ -28,7 +29,7 @@ export class Trees {
     _loadTextures() {
         const loader = new THREE.TextureLoader();
 
-        this.colorMap = loader.load(`${TEX_PATH}/color.jpg`);
+        this.colorMap = loader.load(`${TEX_PATH}/color.png`);
         this.colorMap.encoding = THREE.sRGBEncoding;
         this.colorMap.flipY = false;
 
@@ -41,7 +42,6 @@ export class Trees {
 
     async init() {
         const baseTree = await this._loadOrBuildTree();
-        // mesure la bbox pour savoir de combien il faut descendre le mesh
         const box = new THREE.Box3().setFromObject(baseTree);
         this.pivotOffset = box.min.y;
         console.log('[Trees] pivot offset:', this.pivotOffset, 'bbox:', box.min.y, 'to', box.max.y);
@@ -141,7 +141,7 @@ export class Trees {
     }
 
     _scatterLODs(highMesh, midMesh, impostorMesh) {
-        const { count, scaleMin, scaleMax, highDist, midDist } = this.options;
+        const { count, scaleMin, scaleMax, highDist, midDist, groundBias } = this.options;
 
         const positions = scatterOnTerrain(this.terrain, count, {
             edgeMargin: 0.85,
@@ -153,8 +153,11 @@ export class Trees {
             const rotY = Math.random() * Math.PI * 2;
 
             const lod = new THREE.LOD();
-            // on compense le pivot ici : offset * scale (pour que ça reste correct après scaling)
-            lod.position.set(p.x, p.y - this.pivotOffset * scale, p.z);
+            lod.position.set(
+                p.x,
+                p.y - this.pivotOffset * scale - groundBias,
+                p.z
+            );
 
             const high = highMesh.clone(true);
             high.scale.setScalar(scale);

@@ -6,7 +6,7 @@ export class Lighting {
         this.group.name = 'Lighting';
 
         // lune : directionnelle froide bleutée
-        const moon = new THREE.DirectionalLight(0x8ab4ff, 1.2);
+        const moon = new THREE.DirectionalLight(0x8ab4ff, 0.55);
         moon.position.set(-80, 120, 60);
         moon.castShadow = true;
         moon.shadow.mapSize.set(2048, 2048);
@@ -20,11 +20,11 @@ export class Lighting {
         moon.shadow.camera.far = 400;
         moon.shadow.bias = -0.0005;
 
-
-        const hemi = new THREE.HemisphereLight(0x3a4a7a, 0x0a1020, 0.35);
+        // rim ciel/sol
+        const hemi = new THREE.HemisphereLight(0x2a3560, 0x050810, 0.2);
 
         // ambient léger pour éviter le noir total
-        const ambient = new THREE.AmbientLight(0x1a2040, 0.2);
+        const ambient = new THREE.AmbientLight(0x141830, 0.12);
 
         this.moon = moon;
         this.group.add(moon, hemi, ambient);
