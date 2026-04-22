@@ -11,6 +11,8 @@ const DEFAULTS = {
     midDist: 100,
 };
 
+const TEX_PATH = './assets/textures/trees';
+
 export class Trees {
     constructor(terrain, renderer, options = {}) {
         this.terrain = terrain;
@@ -18,10 +20,32 @@ export class Trees {
         this.options = { ...DEFAULTS, ...options };
         this.group = new THREE.Group();
         this.group.name = 'Trees';
+        this.pivotOffset = 0;
+
+        this._loadTextures();
+    }
+
+    _loadTextures() {
+        const loader = new THREE.TextureLoader();
+
+        this.colorMap = loader.load(`${TEX_PATH}/color.jpg`);
+        this.colorMap.encoding = THREE.sRGBEncoding;
+        this.colorMap.flipY = false;
+
+        this.normalMap = loader.load(`${TEX_PATH}/normal.jpg`);
+        this.normalMap.flipY = false;
+
+        this.rmaoMap = loader.load(`${TEX_PATH}/rmao.jpg`);
+        this.rmaoMap.flipY = false;
     }
 
     async init() {
         const baseTree = await this._loadOrBuildTree();
+        // mesure la bbox pour savoir de combien il faut descendre le mesh
+        const box = new THREE.Box3().setFromObject(baseTree);
+        this.pivotOffset = box.min.y;
+        console.log('[Trees] pivot offset:', this.pivotOffset, 'bbox:', box.min.y, 'to', box.max.y);
+
         const midTree = this._makeMid(baseTree);
         const impostor = this._makeImpostor(baseTree);
 
@@ -32,63 +56,32 @@ export class Trees {
         const gltf = await tryLoadGLTF('./assets/models/tree.glb');
         if (gltf) {
             const tree = gltf.scene;
-            this._applyVertexColors(tree);
+            this._applyPBRMaterial(tree);
             return tree;
         }
         return this._buildProceduralTree();
     }
 
-    // le GLB est une seule mesh sans matériau : on colore par hauteur
-    // (tronc marron en bas, feuillage vert en haut)
-    _applyVertexColors(tree) {
+    _applyPBRMaterial(tree) {
+        const material = new THREE.MeshStandardMaterial({
+            map: this.colorMap,
+            normalMap: this.normalMap,
+            roughnessMap: this.rmaoMap,
+            aoMap: this.rmaoMap,
+            transparent: true,
+            alphaTest: 0.5,
+            side: THREE.DoubleSide,
+        });
+
         tree.traverse((o) => {
             if (!o.isMesh) return;
             o.castShadow = true;
             o.receiveShadow = true;
+            o.material = material;
 
-            const geo = o.geometry;
-            const pos = geo.attributes.position;
-            const count = pos.count;
-            const colors = new Float32Array(count * 3);
-
-            // bbox pour normaliser la hauteur
-            geo.computeBoundingBox();
-            const minY = geo.boundingBox.min.y;
-            const maxY = geo.boundingBox.max.y;
-            const range = maxY - minY;
-
-            // seuil à 30% = transition tronc/feuillage
-            const threshold = 0.3;
-
-            const trunkColor = new THREE.Color(0x3a2818);
-            const leafColor = new THREE.Color(0x2d5a1b);
-            const leafLight = new THREE.Color(0x3f7a28);
-
-            for (let i = 0; i < count; i++) {
-                const y = pos.getY(i);
-                const t = (y - minY) / range;
-
-                let c;
-                if (t < threshold) {
-                    c = trunkColor;
-                } else {
-                    // petit gradient sur le feuillage pour plus de vie
-                    const lt = (t - threshold) / (1 - threshold);
-                    c = leafColor.clone().lerp(leafLight, lt * 0.4);
-                }
-                colors[i * 3] = c.r;
-                colors[i * 3 + 1] = c.g;
-                colors[i * 3 + 2] = c.b;
+            if (o.geometry && o.geometry.attributes.uv && !o.geometry.attributes.uv2) {
+                o.geometry.setAttribute('uv2', o.geometry.attributes.uv);
             }
-
-            geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-            o.material = new THREE.MeshStandardMaterial({
-                vertexColors: true,
-                roughness: 0.9,
-                metalness: 0,
-                flatShading: false,
-            });
         });
     }
 
@@ -113,7 +106,6 @@ export class Trees {
             cone.castShadow = true;
             group.add(cone);
         }
-
         return group;
     }
 
@@ -157,12 +149,12 @@ export class Trees {
         });
 
         for (const p of positions) {
-            const lod = new THREE.LOD();
-            lod.position.copy(p);
-            lod.position.y -= 0.2;
-
             const scale = scaleMin + Math.random() * (scaleMax - scaleMin);
             const rotY = Math.random() * Math.PI * 2;
+
+            const lod = new THREE.LOD();
+            // on compense le pivot ici : offset * scale (pour que ça reste correct après scaling)
+            lod.position.set(p.x, p.y - this.pivotOffset * scale, p.z);
 
             const high = highMesh.clone(true);
             high.scale.setScalar(scale);

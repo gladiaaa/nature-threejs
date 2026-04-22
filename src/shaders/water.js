@@ -4,7 +4,7 @@ export const waterVertex = /* glsl */`
     varying vec3 vNormal;
     varying float vWaveHeight;
 
-    // somme de vagues sinusoïdales pour un relief d'eau crédible
+    
     float wave(vec2 p, vec2 dir, float freq, float speed, float amp) {
         return sin(dot(p, dir) * freq + uTime * speed) * amp;
     }
@@ -22,7 +22,7 @@ export const waterVertex = /* glsl */`
         pos.y += h;
         vWaveHeight = h;
 
-        // normale approchée par dérivée des vagues
+        
         float dx =
             cos(dot(p, vec2(1.0, 0.3)) * 0.15 + uTime * 1.2) * 0.15 * 0.25 +
             cos(dot(p, vec2(-0.5, 0.8)) * 0.22 + uTime * 1.6) * -0.11 +
@@ -56,23 +56,23 @@ export const waterFragment = /* glsl */`
         vec3 viewDir = normalize(cameraPosition - vWorldPos);
         vec3 n = normalize(vNormal);
 
-        // Fresnel : plus on regarde en biais, plus c'est reflétant
+       
         float fresnel = pow(1.0 - max(dot(viewDir, n), 0.0), 3.0);
 
-        // couleur de base modulée par la hauteur de la vague
+        
         vec3 baseCol = mix(uColorDeep, uColorShallow, vWaveHeight * 0.5 + 0.5);
 
-        // highlight spéculaire de la lune
+       
         vec3 halfVec = normalize(uMoonDir + viewDir);
         float spec = pow(max(dot(n, halfVec), 0.0), 64.0);
         vec3 specCol = uMoonColor * spec * 1.5;
 
-        // reflet ciel : plus clair vers le haut quand on regarde de loin
+       
         vec3 reflectCol = mix(uColorShallow, uMoonColor * 0.6, fresnel);
 
         vec3 col = mix(baseCol, reflectCol, fresnel * 0.7) + specCol;
 
-        // fog exponentiel (cohérent avec la scène)
+  
         float dist = length(cameraPosition - vWorldPos);
         float fogFactor = 1.0 - exp(-uFogDensity * uFogDensity * dist * dist);
         col = mix(col, uFogColor, fogFactor);
