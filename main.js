@@ -9,6 +9,7 @@ import { Water } from './src/world/Water.js';
 import { Lighting } from './src/world/Lighting.js';
 import { addNightFog } from './src/world/Fog.js';
 import { ParticleEngine } from './src/effects/ParticleEngine.js';
+import { HeroFireflies } from './src/effects/HeroFireflies.js';
 
 const sceneManager = new SceneManager();
 
@@ -34,12 +35,14 @@ sceneManager.add(water);
 const fireflies = new ParticleEngine();
 sceneManager.add(fireflies);
 
+const heroes = new HeroFireflies(fireflies);
+sceneManager.add(heroes);
+
 const lighting = new Lighting(terrain.getSize());
 sceneManager.add(lighting);
 
 addNightFog(sceneManager.scene);
 
-// post-processing bloom
 const post = new PostProcessing(
     sceneManager.renderer,
     sceneManager.scene,
