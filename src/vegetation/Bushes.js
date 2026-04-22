@@ -4,8 +4,8 @@ import { makeCrossPlaneGeometry } from '../utils/CrossPlanes.js';
 
 const DEFAULTS = {
     count: 300,
-    width: 8,
-    height: 6,
+    width: 3,
+    height: 2.5,
     scaleMin: 0.6,
     scaleMax: 1.3,
 };
@@ -46,7 +46,7 @@ export class Bushes {
         const dummy = new THREE.Object3D();
         for (let i = 0; i < positions.length; i++) {
             const p = positions[i].clone();
-            p.y -= 0.3;
+            p.y -= 0.15;
             dummy.position.copy(p);
             dummy.rotation.y = Math.random() * Math.PI * 2;
             const s = scaleMin + Math.random() * (scaleMax - scaleMin);
