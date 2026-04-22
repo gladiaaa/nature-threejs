@@ -5,6 +5,7 @@ export class SceneManager {
     constructor() {
         this.clock = new THREE.Clock();
         this.updatables = [];
+        this._renderFn = null;
 
         this._initRenderer();
         this._initScene();
@@ -61,6 +62,11 @@ export class SceneManager {
         if (typeof module.update === 'function') this.updatables.push(module);
     }
 
+    // permet d'injecter un renderer custom (ex: EffectComposer)
+    setRenderFn(fn) {
+        this._renderFn = fn;
+    }
+
     start() {
         this._animate();
     }
@@ -74,6 +80,10 @@ export class SceneManager {
             module.update(delta);
         }
 
-        this.renderer.render(this.scene, this.camera);
+        if (this._renderFn) {
+            this._renderFn();
+        } else {
+            this.renderer.render(this.scene, this.camera);
+        }
     }
 }

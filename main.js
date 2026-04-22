@@ -1,4 +1,5 @@
 import { SceneManager } from './src/core/SceneManager.js';
+import { PostProcessing } from './src/core/PostProcessing.js';
 import { Terrain } from './src/world/Terrain.js';
 import { Skybox } from './src/world/Skybox.js';
 import { Grass } from './src/vegetation/Grass.js';
@@ -38,7 +39,16 @@ sceneManager.add(lighting);
 
 addNightFog(sceneManager.scene);
 
+// post-processing bloom
+const post = new PostProcessing(
+    sceneManager.renderer,
+    sceneManager.scene,
+    sceneManager.camera
+);
+sceneManager.setRenderFn(() => post.render());
+
 sceneManager.start();
 
 window.__scene = sceneManager;
 window.__terrain = terrain;
+window.__post = post;
