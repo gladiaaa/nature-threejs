@@ -4,6 +4,7 @@ import { Skybox } from './src/world/Skybox.js';
 import { Grass } from './src/vegetation/Grass.js';
 import { Bushes } from './src/vegetation/Bushes.js';
 import { Trees } from './src/vegetation/Trees.js';
+import { Water } from './src/world/Water.js';
 import { Lighting } from './src/world/Lighting.js';
 import { addNightFog } from './src/world/Fog.js';
 
@@ -24,6 +25,9 @@ sceneManager.add(bushes);
 const trees = new Trees(terrain, sceneManager.renderer);
 await trees.init();
 sceneManager.add(trees);
+
+const water = new Water();
+sceneManager.add(water);
 
 const lighting = new Lighting(terrain.getSize());
 sceneManager.add(lighting);
