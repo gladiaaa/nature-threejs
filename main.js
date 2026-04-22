@@ -7,6 +7,7 @@ import { Trees } from './src/vegetation/Trees.js';
 import { Water } from './src/world/Water.js';
 import { Lighting } from './src/world/Lighting.js';
 import { addNightFog } from './src/world/Fog.js';
+import { ParticleEngine } from './src/effects/ParticleEngine.js';
 
 const sceneManager = new SceneManager();
 
@@ -28,6 +29,9 @@ sceneManager.add(trees);
 
 const water = new Water();
 sceneManager.add(water);
+
+const fireflies = new ParticleEngine();
+sceneManager.add(fireflies);
 
 const lighting = new Lighting(terrain.getSize());
 sceneManager.add(lighting);
