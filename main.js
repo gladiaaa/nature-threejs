@@ -4,6 +4,7 @@ import { Terrain } from './src/world/Terrain.js';
 import { Skybox } from './src/world/Skybox.js';
 import { Grass } from './src/vegetation/Grass.js';
 import { Bushes } from './src/vegetation/Bushes.js';
+import { Plants } from './src/vegetation/Plants.js';
 import { Trees } from './src/vegetation/Trees.js';
 import { Water } from './src/world/Water.js';
 import { Lighting } from './src/world/Lighting.js';
@@ -24,6 +25,9 @@ sceneManager.add(grass);
 
 const bushes = new Bushes(terrain);
 sceneManager.add(bushes);
+
+const plants = new Plants(terrain);
+sceneManager.add(plants);
 
 const trees = new Trees(terrain, sceneManager.renderer);
 await trees.init();
